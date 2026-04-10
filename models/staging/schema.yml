@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: stg_coingecko_markets
+    description: "Cleaned and renamed CoinGecko top 100 coins"
+    columns:
+      - name: coin_id
+        tests:
+          - unique
+          - not_null
+      - name: coin_symbol
+        tests:
+          - not_null
+      - name: current_price_usd
+        tests:
+          - not_null
+      - name: ingestion_date
+        tests:
+          - not_null
+
+  - name: stg_fear_greed_index
+    description: "30 days of crypto market sentiment"
+    columns:
+      - name: fear_greed_value
+        tests:
+          - not_null
+      - name: sentiment_date
+        tests:
+          - not_null
+
+  - name: stg_exchange_rates
+    description: "USD to ZAR, GBP, EUR, AUD, BTC exchange rates"
+    columns:
+      - name: target_currency
+        tests:
+          - not_null
+      - name: exchange_rate
+        tests:
+          - not_null
+      - name: rate_date
+        tests:
+          - not_null
+
+  - name: stg_global_market
+    description: "Global crypto market metrics"
+    columns:
+      - name: total_market_cap_usd
+        tests:
+          - not_null
+      - name: btc_dominance_pct
+        tests:
+          - not_null
