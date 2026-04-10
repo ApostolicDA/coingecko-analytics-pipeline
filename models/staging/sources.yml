@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    project: coingecko-pipeline-492920
+    dataset: raw
+    tables:
+      - name: raw_coingecko_markets
+      - name: raw_fear_greed_index
+      - name: raw_exchange_rates
+      - name: raw_global_market
