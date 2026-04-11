@@ -1,0 +1,33 @@
+name: Daily Crypto Ingestion Pipeline
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # runs every day at 6am UTC
+  workflow_dispatch:       # allows manual trigger anytime
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install google-cloud-bigquery pandas requests pyarrow
+
+      - name: Create GCP credentials file
+        run: |
+          echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/gcp_key.json
+
+      - name: Run ingestion pipeline
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp_key.json
+        run: |
+          python ingestion/ingest.py
