@@ -54,6 +54,7 @@ The pipeline is scheduled to run daily at 6am UTC via GitHub Actions / Google Cl
 
 ---
 
+
 ## Project Structure
 coingecko-analytics-pipeline/
 ├── .github/workflows/
@@ -76,6 +77,7 @@ coingecko-analytics-pipeline/
 ├── tests/
 ├── dbt_project.yml
 └── README.md
+
 
 ---
 
