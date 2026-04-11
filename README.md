@@ -55,3 +55,38 @@ The pipeline is scheduled to run daily at 6am UTC via GitHub Actions / Google Cl
 ---
 
 ## Project Structure
+coingecko-analytics-pipeline/
+├── .github/workflows/
+│   └── daily_ingestion.yml     # GitHub Actions daily schedule
+├── ingestion/
+│   └── ingest.py               # 4-source Python ingestion script
+├── models/
+│   ├── staging/
+│   │   ├── sources.yml
+│   │   ├── schema.yml
+│   │   ├── stg_coingecko_markets.sql
+│   │   ├── stg_fear_greed_index.sql
+│   │   ├── stg_exchange_rates.sql
+│   │   └── stg_global_market.sql
+│   └── marts/
+│       ├── schema.yml
+│       ├── mart_coin_performance.sql
+│       ├── mart_market_sentiment.sql
+│       └── mart_fx_crypto_correlation.sql
+├── tests/
+├── dbt_project.yml
+└── README.md
+
+---
+
+## Author
+
+**Proud Kudzai Ndlovu**
+Analytics Engineer | dbt · BigQuery · SQL · Python
+Johannesburg, South Africa | Open to Remote
+[LinkedIn](https://linkedin.com/in/proud-ndlovu-89070854) · [GitHub](https://github.com/ApostolicDA)
+
+
+
+
+
