@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: mart_coin_performance
+    description: "Top 100 coins with USD and ZAR pricing and performance categories"
+    columns:
+      - name: coin_id
+        description: "Unique coin identifier"
+        tests:
+          - unique
+          - not_null
+      - name: coin_symbol
+        tests:
+          - not_null
+      - name: current_price_usd
+        tests:
+          - not_null
+      - name: market_cap_rank
+        tests:
+          - not_null
+      - name: performance_category
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Strong Gainer', 'Gainer', 'Stable', 'Loser', 'Strong Loser']
+
+  - name: mart_market_sentiment
+    description: "Fear and greed index joined with global market context"
+    columns:
+      - name: fear_greed_value
+        tests:
+          - not_null
+      - name: sentiment_zone
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['Extreme Greed', 'Greed', 'Neutral', 'Fear', 'Extreme Fear']
+      - name: market_risk_signal
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['High Capitulation Risk', 'Overheating Market', 'Normal Conditions']
+
+  - name: mart_fx_crypto_correlation
+    description: "Top 10 coins priced across ZAR, GBP, EUR, AUD with FX context"
+    columns:
+      - name: coin_symbol
+        tests:
+          - not_null
+      - name: current_price_usd
+        tests:
+          - not_null
+      - name: price_zar
+        tests:
+          - not_null
+      - name: market_cap_rank
+        tests:
+          - not_null

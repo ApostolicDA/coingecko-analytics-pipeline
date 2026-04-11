@@ -10,10 +10,10 @@ renamed as (
         
         -- time
         cast(timestamp as int64)      as unix_timestamp,
-        timestamp_add(
-            timestamp('1970-01-01'),
-            interval cast(timestamp as int64) second
-        )                             as sentiment_date,
+        date(timestamp_add(
+    timestamp('1970-01-01'),
+    interval cast(timestamp as int64) second
+)) as sentiment_date,
         
         -- metadata
         ingested_at
