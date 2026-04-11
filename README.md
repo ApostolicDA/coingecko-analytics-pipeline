@@ -56,11 +56,13 @@ The pipeline is scheduled to run daily at 6am UTC via GitHub Actions / Google Cl
 
 
 ## Project Structure
+
+```
 coingecko-analytics-pipeline/
 ├── .github/workflows/
-│   └── daily_ingestion.yml     # GitHub Actions daily schedule
+│   └── daily_ingestion.yml
 ├── ingestion/
-│   └── ingest.py               # 4-source Python ingestion script
+│   └── ingest.py
 ├── models/
 │   ├── staging/
 │   │   ├── sources.yml
@@ -77,10 +79,7 @@ coingecko-analytics-pipeline/
 ├── tests/
 ├── dbt_project.yml
 └── README.md
-
-
----
-
+```
 ## Author
 
 **Proud Kudzai Ndlovu**
