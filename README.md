@@ -108,13 +108,13 @@ A second issue emerged during dashboard validation — FX scorecards were summin
 ## Dashboard Preview
 
 ### Coin Performance Dashboard
-![Coin Performance](images/Coin_Performance_Dashboard.png)
+![Coin Performance](images/coin_performance_dashboard.png)
 
 ### Market Sentiment Dashboard
-![Market Sentiment](images/Market_Sentiment_Dashboard.png)
+![Market Sentiment](images/market_sentiment_dashboard.png)
 
 ### FX Crypto Correlation
-![FX Crypto Correlation](images/FX_Crypto_Correlation.png)
+![FX Crypto Correlation](images/fx_crypto_correlation.png)
 
 ---
 
