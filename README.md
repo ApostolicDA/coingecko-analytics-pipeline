@@ -1,59 +1,181 @@
+# Crypto Market Analytics Pipeline
+
+A production-style, multi-source analytics pipeline built with Python, BigQuery, dbt, and Looker Studio. This project ingests live data from 4 external APIs, transforms it through a governed dbt layer, validates it with automated tests, and delivers business insights through a 3-page executive dashboard.
+
+**Live Dashboard:** https://lookerstudio.google.com/reporting/5b2423b8-a2c7-44b6-8aa1-62b36d16311d
+
+**Author:** Proud Kudzai Ndlovu — Analytics Engineer | dbt · BigQuery · SQL · Python
+
+---
+
+## The Business Problem
+
+Crypto markets generate data across disconnected sources — price feeds, sentiment indices, currency markets, and macro indicators. Without a unified data layer, analysts manually reconcile spreadsheets, make decisions on stale numbers, and build reports that break the moment a source changes.
+
+This pipeline solves that by building a single source of truth. Raw data lands once, gets cleaned once, and delivers trusted insights automatically — the same architecture that powers data teams at scale.
+
+---
+
+## Architecture
+
+```
+4 External APIs
+      │
+      ▼
+Python Ingestion Script (ingestion/ingest.py)
+      │
+      ▼
+BigQuery Raw Layer — 4 tables, full fidelity, timestamped
+      │
+      ▼
+dbt Staging Layer — clean, type, rename, document
+      │
+      ▼
+dbt Mart Layer — business logic, joins, enrichment
+      │
+      ▼
+dbt Test Suite — not_null, unique, accepted_values
+      │
+      ▼
+Looker Studio Dashboard — 3 pages, live, interactive
+      │
+      ▼
+GitHub Actions — daily schedule, fully automated
+```
+
+---
+
+## Data Sources
+
+| Source | API | What It Delivers |
+|--------|-----|-----------------|
+| Top 100 Coins | CoinGecko | Price, volume, market cap, 24h change, ATH/ATL |
+| Global Market | CoinGecko | Total market cap, BTC/ETH dominance, active coins |
+| Fear & Greed Index | Alternative.me | 30-day daily sentiment score and classification |
+| FX Exchange Rates | ExchangeRate-API | USD to ZAR, GBP, EUR, AUD live rates |
+
+---
+
+## Tech Stack
+
+- **Ingestion:** Python, pandas, google-cloud-bigquery
+- **Warehouse:** Google BigQuery
+- **Transformation:** dbt Cloud
+- **Testing:** dbt generic tests
+- **Dashboard:** Looker Studio
+- **Version Control:** GitHub
+- **Automation:** GitHub Actions (daily 6am UTC)
+
+---
+
+## Pipeline Structure
+
+### Raw Layer
+
+Four tables land in BigQuery exactly as received — no transformation, full fidelity, with ingested_at timestamp on every row for auditability.
+
+### Staging Layer
+
+```
+models/staging/
+├── stg_coingecko_markets.sql
+├── stg_fear_greed_index.sql
+├── stg_exchange_rates.sql
+└── stg_global_market.sql
+```
+
+Staging has one job — make data trustworthy. Explicit type casting, unambiguous column naming, Unix timestamp conversion, NULL handling, and audit trail. No business logic. Fix it once upstream, every downstream model inherits clean data automatically.
+
+### Mart Layer
+
+```
+models/marts/
+├── mart_coin_performance.sql
+├── mart_market_sentiment.sql
+└── mart_fx_crypto_correlation.sql
+```
+
+Business logic lives here — cross-currency pricing, sentiment classification, market risk signals, and multi-source joins.
+
 ### Test Suite
-Every mart and staging model has automated tests. The test layer caught a real data quality issue during development — BTC was returning NULL from the exchange rate API (unsupported on the free tier). The fix was applied at the ingestion layer, clean data reloaded, and all tests passed. That is the system working as designed.
+
+Every model has automated tests. During development the test layer caught a real issue — BTC was returning NULL from the exchange rate API (unsupported on the free tier). Fixed at ingestion, clean data reloaded, all tests passed. The system worked exactly as designed.
+
+A second issue emerged during dashboard validation — FX scorecards were summing rates across 10 mart rows instead of averaging, producing a USD/ZAR rate of 163.9 instead of 16.41. Caught through visual validation, fixed by correcting the aggregation. This highlights that schema tests catch NULLs and type errors — but business logic validation requires human eyes on the output. Both layers of quality control matter.
+
+---
+
+## Dashboard Preview
+
+### Coin Performance Dashboard
+![Coin Performance](images/Coin_Performance_Dashboard.png)
+
+### Market Sentiment Dashboard
+![Market Sentiment](images/Market_Sentiment_Dashboard.png)
+
+### FX Crypto Correlation
+![FX Crypto Correlation](images/FX_Crypto_Correlation.png)
 
 ---
 
 ## Key Business Insights
 
-### 1. Market is in Extreme Fear
-Over the 30-day analysis period, the crypto market spent the majority of days in Extreme Fear territory on the Fear and Greed Index. This level of sustained fear typically signals either a buying opportunity for long-term holders or continued downside risk if macro conditions worsen.
+### 1. The market has been in Extreme Fear for 93% of the last 30 days
 
-### 2. Bitcoin Dominance is Elevated
-BTC dominance is holding above average, indicating capital consolidation into the market leader during uncertain conditions. This is a classic risk-off pattern — investors rotate from altcoins into Bitcoin as a relative safe haven within crypto.
+Between March 12 and April 11 2026, 28 out of 30 days registered Extreme Fear on the Fear and Greed Index, with values ranging from 11 to 30. This is not a short-term dip — it is sustained, structural fear. Historically, prolonged Extreme Fear periods either precede recovery as weak hands exit, or signal deeper macro deterioration. The data alone cannot tell you which. But it tells you the market is not neutral.
 
-### 3. Total Market Cap at $2.5 Trillion
-With 100 tracked coins and a combined market cap of $2.5T and daily volume of $143B, the market remains liquid despite the fear sentiment. High volume during fear periods can indicate capitulation — forced selling — which historically precedes recoveries.
+### 2. Bitcoin dominance is locked at 57.24% — capital is consolidating
 
-### 4. ZAR Exposure is Significant
-At a USD/ZAR rate of approximately 18.4, South African investors face compounded volatility — crypto price swings on top of currency risk. Bitcoin priced at approximately R1.2M highlights the dual exposure. A 10% crypto drop combined with a 5% ZAR weakening represents a 15% loss in rand terms.
+BTC dominance held at 57.24% consistently across the entire 30-day period. This is a classic risk-off rotation — investors exiting altcoins and consolidating into Bitcoin as a relative safe haven within crypto. When dominance stays flat at elevated levels during fear, it suggests the market is not in freefall but in consolidation. Altcoin recovery typically follows BTC stabilisation.
 
-### 5. Altcoin Dispersion is Wide
-The performance category distribution across the top 100 coins shows significant dispersion — while Bitcoin and Ethereum show relative stability, smaller cap coins are experiencing stronger losses, consistent with risk-off market behaviour.
+### 3. $143.1B in daily volume during Extreme Fear — this is not a dead market
+
+High volume during fear periods is a capitulation signal. Weak holders are selling, stronger hands are absorbing. A dead market has low volume and low sentiment. This market has low sentiment but significant volume — which is a more interesting signal than either metric alone.
+
+### 4. Bitcoin costs R1.2M in South African Rand — currency risk compounds crypto risk
+
+At a USD/ZAR rate of 16.41, Bitcoin priced at approximately $98,000 USD translates to R1.2M. South African investors face compounded volatility — a 10% BTC drop combined with a 3% ZAR weakening produces a 13% loss in rand terms without any change in global sentiment. The FX layer in this pipeline makes that dual exposure visible in a single dashboard.
+
+### 5. Total market cap at $2.5T with BTC holding $1.459T — 58% concentration
+
+Bitcoin alone holds 58% of the total tracked market cap. Ethereum at $270B is a distant second. The top 3 coins — BTC, ETH, and Tether — account for over 75% of total market cap. This level of concentration means BTC price action drives the entire market, not the other way around.
 
 ---
 
 ## Recommendations
 
-**For crypto investors:** Elevated fear with high volume suggests the market is in a distribution or capitulation phase. Dollar-cost averaging into BTC during Extreme Fear periods has historically produced strong long-term returns, but position sizing should account for ZAR/USD currency risk.
+**For analysts building on this pipeline:** Replace the 4 crypto APIs with Shopify (orders), Stripe (payments), Segment (events), and Salesforce (CRM) and the architecture is identical. Same ingestion pattern, same staging logic, same mart layer thinking. This pipeline is a template for any multi-source business analytics problem.
 
-**For data teams:** This pipeline architecture — multi-source ingestion, governed staging layer, business logic in marts, automated tests — is directly applicable to any business with fragmented data sources. Replace the crypto APIs with Shopify, Stripe, Salesforce, and Segment and the architecture is identical.
+**For crypto investors:** Sustained Extreme Fear with high volume and stable BTC dominance historically precedes recovery. Dollar-cost averaging into BTC during this window has produced strong long-term returns. But ZAR/USD exposure must be factored into position sizing — currency weakness amplifies downside in rand terms.
 
-**For product teams:** Sentiment data combined with price action and FX rates creates a richer signal than any single source alone. The mart_market_sentiment model's risk signal field — classifying market conditions as Normal, Overheating, or High Capitulation Risk — is the kind of derived insight that powers automated alerts and decision support tools.
+**For data teams:** The two quality issues caught during this build — a NULL from an unsupported API currency and a wrong aggregation in the BI layer — demonstrate why data quality requires both automated testing and human validation. dbt tests catch structural issues. Dashboard review catches logical issues. Neither replaces the other.
 
 ---
 
 ## How to Run
 
 ### Ingestion
+
 ```bash
-cd ingestion
 pip install google-cloud-bigquery pandas requests pyarrow
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/key.json
-python ingest.py
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
+python ingestion/ingest.py
 ```
 
 ### dbt
+
 ```bash
-dbt build          # run all models and tests
-dbt test           # run tests only
-dbt run            # run models only
+dbt build
+dbt test
+dbt run
+dbt build --select stg_exchange_rates mart_fx_crypto_correlation
 ```
 
 ### Automation
-The pipeline is scheduled to run daily at 6am UTC via GitHub Actions / Google Cloud Scheduler. Each run overwrites the raw layer with fresh data, dbt rebuilds all models, and the Looker Studio dashboard updates automatically.
+
+Pipeline runs daily at 6am UTC via GitHub Actions. Each run overwrites raw data, rebuilds all dbt models, runs the full test suite, and the Looker Studio dashboard updates automatically.
 
 ---
-
 
 ## Project Structure
 
@@ -63,6 +185,10 @@ coingecko-analytics-pipeline/
 │   └── daily_ingestion.yml
 ├── ingestion/
 │   └── ingest.py
+├── images/
+│   ├── Coin_Performance_Dashboard.png
+│   ├── Market_Sentiment_Dashboard.png
+│   └── FX_Crypto_Correlation.png
 ├── models/
 │   ├── staging/
 │   │   ├── sources.yml
@@ -80,14 +206,8 @@ coingecko-analytics-pipeline/
 ├── dbt_project.yml
 └── README.md
 ```
-## Author
 
-**Proud Kudzai Ndlovu**
-Analytics Engineer | dbt · BigQuery · SQL · Python
-Johannesburg, South Africa | Open to Remote
-[LinkedIn](https://linkedin.com/in/proud-ndlovu-89070854) · [GitHub](https://github.com/ApostolicDA)
+---
 
-
-
-
-
+*Built by Proud Kudzai Ndlovu — April 2026*
+*[LinkedIn](https://linkedin.com/in/proud-ndlovu-89070854) · [GitHub](https://github.com/ApostolicDA)*
