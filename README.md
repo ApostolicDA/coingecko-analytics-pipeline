@@ -42,6 +42,15 @@ Looker Studio Dashboard — 3 pages, live, interactive
       ▼
 GitHub Actions — daily schedule, fully automated
 ```
+---
+## Production Applicability
+
+This pipeline follows the same architecture used in production 
+analytics engineering teams. The 4 crypto APIs can be swapped 
+for any business data sources — Shopify (orders), Stripe 
+(payments), Segment (events), Salesforce (CRM) — and the 
+ingestion, staging, mart, and test patterns remain identical. 
+The crypto domain is the demo. The architecture is the product.
 
 ---
 
@@ -67,7 +76,22 @@ GitHub Actions — daily schedule, fully automated
 - **Automation:** GitHub Actions (daily 6am UTC)
 
 ---
+## Automation
 
+Pipeline runs daily at 6am UTC via GitHub Actions with zero 
+manual intervention:
+
+- Ingestion script pulls from all 4 APIs → overwrites BigQuery 
+  raw tables
+- dbt build rebuilds all staging and mart models
+- Full dbt test suite runs automatically
+- Looker Studio dashboard refreshes live
+
+This replaces what most teams handle with fragile Zapier 
+workflows or manual scripts. The `.github/workflows/` folder 
+contains the full workflow config.
+
+---
 ## Pipeline Structure
 
 ### Raw Layer
@@ -144,8 +168,6 @@ Bitcoin alone holds 58% of the total tracked market cap. Ethereum at $270B is a 
 
 ## Recommendations
 
-**For analysts building on this pipeline:** Replace the 4 crypto APIs with Shopify (orders), Stripe (payments), Segment (events), and Salesforce (CRM) and the architecture is identical. Same ingestion pattern, same staging logic, same mart layer thinking. This pipeline is a template for any multi-source business analytics problem.
-
 **For crypto investors:** Sustained Extreme Fear with high volume and stable BTC dominance historically precedes recovery. Dollar-cost averaging into BTC during this window has produced strong long-term returns. But ZAR/USD exposure must be factored into position sizing — currency weakness amplifies downside in rand terms.
 
 **For data teams:** The two quality issues caught during this build — a NULL from an unsupported API currency and a wrong aggregation in the BI layer — demonstrate why data quality requires both automated testing and human validation. dbt tests catch structural issues. Dashboard review catches logical issues. Neither replaces the other.
@@ -170,10 +192,6 @@ dbt test
 dbt run
 dbt build --select stg_exchange_rates mart_fx_crypto_correlation
 ```
-
-### Automation
-
-Pipeline runs daily at 6am UTC via GitHub Actions. Each run overwrites raw data, rebuilds all dbt models, runs the full test suite, and the Looker Studio dashboard updates automatically.
 
 ---
 
