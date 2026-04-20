@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: fct_revenue_by_channel
+    description: >
+      Unified revenue fact table across dot.cards three business lines:
+      e-commerce (Shopify physical card sales), SaaS (Stripe dot.teams subscriptions),
+      and digital one-time purchases (Stripe). Each transaction appears exactly once —
+      no double counting. Leadership gets one total revenue number. Analysts filter by
+      business_line for granular view.
+    columns:
+      - name: transaction_id
+        description: "Unique transaction identifier — order_id for Shopify, charge_id for Stripe"
+        tests:
+          - unique
+          - not_null
+      - name: business_line
+        description: "Revenue stream: ecommerce | saas | digital"
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - ecommerce
+                - saas
+                - digital
+      - name: net_revenue
+        description: "Revenue after discounts and refunds — the number that matters"
+        tests:
+          - not_null
+      - name: revenue_month
+        description: "Month of transaction — truncated to first of month for cohort analysis"
+        tests:
+          - not_null
+      - name: cumulative_total_revenue
+        description: "Running total revenue across all business lines — powers the revenue scorecard"
+
+  - name: fct_user_retention
+    description: >
+      Cohort retention analysis for dot.cards users. Tracks what percentage of users
+      acquired in a given month return in subsequent months. Segments by acquisition
+      channel (NFC tap vs digital signup) to identify which acquisition method
+      produces more retained users. Powers the retention dashboard and informs
+      product and marketing strategy.
+    columns:
+      - name: cohort_month
+        description: "Month the user cohort was acquired"
+        tests:
+          - not_null
+      - name: months_since_acquisition
+        description: "0 = acquisition month, 1 = one month later, etc."
+        tests:
+          - not_null
+      - name: cohort_users
+        description: "Total users in this cohort at acquisition"
+        tests:
+          - not_null
+      - name: retained_users
+        description: "Users from this cohort still active in this month"
+        tests:
+          - not_null
+      - name: retention_rate_pct
+        description: "Percentage of cohort retained — the core metric"
+      - name: acquired_via_nfc
+        description: "1 if user's first interaction was an NFC card tap, 0 if digital"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
