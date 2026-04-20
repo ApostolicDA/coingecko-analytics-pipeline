@@ -1,0 +1,63 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw layer — data lands here exactly as received from source systems. No transformation. Full fidelity."
+    tables:
+      - name: segment_events_v2
+        description: "Raw Segment event stream. Contains all user interactions including NFC taps, profile views, signups, and purchases."
+
+models:
+  - name: stg_segment__events
+    description: >
+      Staged Segment events for dot.cards. Applies four governance layers:
+      (1) Identity resolution — coalesces user_id and anonymous_id into unified_user_id for pre/post login tracking.
+      (2) Event standardization — normalizes inconsistent event naming conventions into a clean taxonomy.
+      (3) JSON extraction — pulls typed fields from the Segment properties blob into queryable columns.
+      (4) Deduplication — removes duplicate events using row_number() partitioned by user, event, and timestamp.
+      Every downstream mart inherits clean, trusted data automatically.
+    columns:
+      - name: event_id
+        description: "Unique identifier for each event"
+        tests:
+          - unique
+          - not_null
+
+      - name: unified_user_id
+        description: "Resolved user identity — user_id if logged in, anonymous_id if not. Never null."
+        tests:
+          - not_null
+
+      - name: event_name_clean
+        description: "Standardized event name. Raw Segment events are inconsistently named — this column enforces a clean taxonomy."
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - page_viewed
+                - user_signed_up
+                - add_to_cart
+                - purchase
+                - login
+                - nfc_tap
+                - profile_view
+                - unknown_event
+
+      - name: timestamp
+        description: "Event timestamp as recorded by Segment"
+        tests:
+          - not_null
+
+      - name: revenue
+        description: "Revenue associated with the event (purchase events only). Cast to float64 from raw JSON string."
+
+      - name: card_id
+        description: "dot.cards card identifier — populated on NFC tap and profile view events"
+
+      - name: profile_id
+        description: "dot.cards profile identifier — populated on profile view events"
+
+      - name: _ingested_at
+        description: "Audit timestamp — when this row was loaded into BigQuery raw layer"
+        tests:
+          - not_null
