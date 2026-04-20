@@ -137,15 +137,15 @@ This is the QA philosophy I'd bring to dot.cards' pipeline from day one.
 
 **Coin Performance** — maps to: order and revenue performance by product
 
-![Coin Performance](images/Coin_Performance_Dashboard.png)
+![Coin Performance](images/coin_performance_dashboard.png)
 
 **Market Sentiment** — maps to: user engagement and NFC tap trends
 
-![Market Sentiment](images/Market_Sentiment_Dashboard.png)
+![Market Sentiment](images/market_sentiment_dashboard.png)
 
 **FX Correlation** — maps to: multi-source revenue attribution
 
-![FX Correlation](images/FX_Crypto_Correlation.png)
+![FX Correlation](images/fx_crypto_correlation.png)
 
 ---
 
